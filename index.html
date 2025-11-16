@@ -90,10 +90,10 @@
         </div>
     </header>
 
-    <!-- Hero Section (Now using the new road picture) -->
+    <!-- Hero Section (Now using the road_arches.jpeg image) -->
     <section class="relative h-96 bg-gray-900 flex items-center justify-center overflow-hidden mb-12">
         <img src="images/road_arches.jpeg" 
-             alt="American road trip through the desert" 
+             alt="Road winding through Arches National Park" 
              class="absolute inset-0 w-full h-full object-cover opacity-70">
         <div class="relative z-10 text-center p-4 bg-black/30 rounded-xl">
             <h2 class="text-5xl md:text-7xl font-bold text-white mb-2">The Red Earth Collection</h2>
@@ -181,7 +181,7 @@
     <script>
         // Data structure for the uploaded images and their metadata
         const photos = [
-            // --- Curated List (23 Images) ---
+            // --- Curated List (22 Images) ---
             { id: 1, title: "Grand Arch", location: "Arches National Park, UT", description: "A major arch formation rising dramatically from the desert floor.", filepath: "arches_arch.jpeg", ratio: "3/2", dimensions: "4500x3000 px" },
             { id: 2, title: "Canyonlands Perspective 2", location: "Canyonlands NP, UT", description: "A secondary perspective of the Canyonlands landscape.", filepath: "canyon lands 2.jpeg", ratio: "3/2", dimensions: "5000x3333 px" },
             { id: 3, title: "Deep Canyonlands", location: "Canyonlands NP, UT", description: "Focus on a deep, shadowed section of the canyon.", filepath: "canyon lands canyon.jpeg", ratio: "4/5", dimensions: "3200x4000 px" },
@@ -192,9 +192,11 @@
             { id: 8, title: "Flagstaff Mountain Panorama", location: "Flagstaff, AZ", description: "A wide-angle landscape showing the mountains around Flagstaff.", filepath: "Flagstaff_panorama.jpeg", ratio: "16/9", dimensions: "6000x3375 px" },
             { id: 9, title: "Flagstaff Snowbowl", location: "San Francisco Peaks, AZ", description: "Snowy landscape near the ski resort.", filepath: "flagstaff_snowbowl.jpeg", ratio: "4/3", dimensions: "4800x3600 px" },
             { id: 10, title: "Grand Canyon Vista", location: "Grand Canyon National Park, AZ", description: "A vast, sweeping view into the depths of the iconic Grand Canyon.", filepath: "GrandCanyon.jpeg", ratio: "16/9", dimensions: "6000x3375 px" },
-            { id: 11, title: "Hoover Dam Structure", location: "Hoover Dam, NV/AZ", description: "A detailed view of the massive concrete structure and architecture.", filepath: "HoverDam.jpeg", ratio: "3/2", dimensions: "5000x3333 px" },
+            // CORRECTION: Changing filepath from 'HoverDam.jpeg' (misspelling) to 'HooverDam.jpeg'
+            { id: 11, title: "Hoover Dam Structure", location: "Hoover Dam, NV/AZ", description: "A detailed view of the massive concrete structure and architecture.", filepath: "HooverDam.jpeg", ratio: "3/2", dimensions: "5000x3333 px" },
             { id: 12, title: "Kanya Kumari Temple", location: "Kanya Kumari, India", description: "The colorful ancient temple complex at the southern tip of India.", filepath: "Kanya_Kumari.jpeg", ratio: "3/2", dimensions: "5000x3333 px" },
-            { id: 13, title: "Lake Pleasant Sunset", location: "Lake Pleasant, AZ", description: "Wide-angle view of the lake under a dramatic sunset.", filepath: "Lake_Pleasent_2.jpeg", ratio: "16/9", dimensions: "6000x3375 px" },
+            // CORRECTION: Changing filepath from 'Lake_Pleasent_2.jpeg' (misspelling) to 'Lake_Pleasant_2.jpeg'
+            { id: 13, title: "Lake Pleasant Sunset", location: "Lake Pleasant, AZ", description: "Wide-angle view of the lake under a dramatic sunset.", filepath: "Lake_Pleasant_2.jpeg", ratio: "16/9", dimensions: "6000x3375 px" },
             { id: 14, title: "LA Boat Hangar", location: "Los Angeles, CA", description: "Architectural shot of a vast boat hangar in Southern California.", filepath: "Los_Angeles_Boat_Hanger.jpeg", ratio: "4/5", dimensions: "3200x4000 px" },
             { id: 15, title: "Monument Valley Buttes", location: "Monument Valley, UT/AZ", description: "The iconic sandstone buttes rising from the desert plain.", filepath: "Monument_Valley.jpeg", ratio: "3/2", dimensions: "4500x3000 px" },
             { id: 16, title: "Nandi Hills", location: "Nandi Hills, India", description: "Scenic view from the hill station, often shrouded in mist.", filepath: "Nandi_Hills.jpg", ratio: "4/3", dimensions: "4000x3000 px" },
@@ -203,8 +205,7 @@
             { id: 19, title: "Road to Arches", location: "Arches National Park, UT", description: "A classic leading line shot of the road winding through the park entrance.", filepath: "road_arches.jpeg", ratio: "3/2", dimensions: "5000x3333 px" },
             { id: 20, title: "San Diego Coast", location: "San Diego, CA", description: "A wide coastal view of the Pacific Ocean and city skyline.", filepath: "Sandiego.jpeg", ratio: "16/9", dimensions: "6000x3375 px" },
             { id: 21, title: "Sedona Red Rocks", location: "Sedona, AZ", description: "Vibrant red rock formations under a clear blue sky.", filepath: "Sedona.jpeg", ratio: "4/3", dimensions: "4000x3000 px" },
-            { id: 22, title: "Upheaval Dome", location: "Canyonlands National Park, UT", description: "The geological anomaly known as Upheaval Dome.", filepath: "UpheavelDome.jpeg", ratio: "3/2", dimensions: "5000x3333 px" },
-            { id: 23, title: "American Road Trip", location: "Arizona/Utah", description: "A classic long-road view, perfect for a banner.", filepath: "us_road_pic_for_the_banner.jpeg", ratio: "16/9", dimensions: "6000x3375 px" }
+            { id: 22, title: "Upheaval Dome", location: "Canyonlands National Park, UT", description: "The geological anomaly known as Upheaval Dome.", filepath: "UpheavelDome.jpeg", ratio: "3/2", dimensions: "5000x3333 px" }
         ];
 
         // Function to render the gallery items
