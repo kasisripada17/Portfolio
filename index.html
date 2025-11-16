@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desert Vistas - Photography Portfolio</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Lucide Icons for aesthetic elements -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Custom styles for aesthetic (Reverting to original rounded/masonry style) */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f7f5; /* Very light off-white */
+            color: #333;
+        }
+        .gallery-grid {
+            /* Masonry-like grid using columns for dynamic height cards */
+            column-count: 1;
+            column-gap: 1.5rem;
+        }
+        @media (min-width: 640px) {
+            .gallery-grid {
+                column-count: 2;
+            }
+        }
+        @media (min-width: 1024px) {
+            .gallery-grid {
+                column-count: 3;
+            }
+        }
+        .photo-card {
+            display: inline-block;
+            width: 100%;
+            margin-bottom: 1.5rem;
+            break-inside: avoid;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .photo-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Style for the modal background */
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.95); /* Darker overlay for better viewing */
+            backdrop-filter: blur(10px);
+            z-index: 50;
+        }
+
+        /* Watermark Styling */
+        .watermark-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg); /* Rotate for better deterrent */
+            pointer-events: none; /* Allows clicks to pass through to the element below */
+            opacity: 0.2;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            z-index: 10;
+            user-select: none; /* Prevents text selection */
+            white-space: nowrap;
+        }
+        
+        /* Make images non-draggable and non-selectable */
+        .protected-image {
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            pointer-events: auto; /* Ensure it still triggers click event for modal */
+            -webkit-user-drag: none;
+            user-drag: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header & Navigation -->
+    <header class="bg-white/90 sticky top-0 border-b border-gray-200 shadow-sm z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
+            <h1 class="text-2xl font-extrabold tracking-tight text-red-700">DESERT VISTAS</h1>
+            <nav>
+                <a href="#" class="text-gray-600 hover:text-red-700 font-medium transition duration-150 ease-in-out px-3 py-2 rounded-lg">Portfolio</a>
+                <a href="#contact" class="text-gray-600 hover:text-red-700 font-medium transition duration-150 ease-in-out px-3 py-2 rounded-lg">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section (Now using the new road picture) -->
+    <section class="relative h-96 bg-gray-900 flex items-center justify-center overflow-hidden mb-12">
+        <img src="images/road_arches.jpeg" 
+             alt="American road trip through the desert" 
+             class="absolute inset-0 w-full h-full object-cover opacity-70">
+        <div class="relative z-10 text-center p-4 bg-black/30 rounded-xl">
+            <h2 class="text-5xl md:text-7xl font-bold text-white mb-2">The Red Earth Collection</h2>
+            <p class="text-xl text-gray-200">A journey through the stunning landscapes of the American Southwest.</p>
+        </div>
+    </section>
+
+    <!-- Main Content - Photo Gallery -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <h2 class="text-3xl font-semibold text-center mb-10 text-gray-800 border-b-2 border-red-700 inline-block pb-1 mx-auto">Selected Works</h2>
+
+        <div id="gallery" class="gallery-grid">
+            <!-- Photo cards will be injected here by JavaScript -->
+        </div>
+    </main>
+
+    <!-- Contact Section -->
+    <section id="contact" class="bg-gray-800 text-white py-16 mt-12">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-4xl font-bold mb-4 text-red-500">Let's Connect</h2>
+            <p class="text-lg mb-8 text-gray-300">Interested in sharing thoughts or commissioning a shoot? Send me a message!</p>
+            
+            <form id="contactForm" class="space-y-4">
+                <input type="text" placeholder="Your Name" required class="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:ring-red-500 focus:border-red-500">
+                <input type="email" placeholder="Your Email" required class="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:ring-red-500 focus:border-red-500">
+                <textarea placeholder="Your Message" rows="4" required class="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:ring-red-500 focus:border-red-500"></textarea>
+                <button type="submit" class="w-full md:w-auto px-6 py-3 bg-red-700 text-white font-semibold rounded-lg shadow-md hover:bg-red-600 transition duration-300">
+                    Send Message 
+                    <i data-lucide="send" class="w-4 h-4 inline-block ml-2 align-middle"></i>
+                </button>
+            </form>
+            <div id="messageBox" class="mt-4 p-3 rounded-lg bg-green-500 text-white hidden">Thank you for your message! I'll be in touch soon.</div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-400">
+            <p>&copy; 2025 Desert Vistas Photography. All Rights Reserved. | Images are Watermarked and Protected.</p>
+        </div>
+    </footer>
+
+    <!-- Image Modal (Wider and Taller for better "Full Picture" View) -->
+    <div id="imageModal" class="fixed inset-0 hidden modal-overlay items-center justify-center p-2 md:p-4" onclick="closeModal(event)">
+        
+        <!-- Modal Content Container (Increased to max-w-6xl) -->
+        <div class="bg-white rounded-xl shadow-2xl max-w-6xl w-full max-h-[95vh] overflow-hidden" onclick="event.stopPropagation()">
+            <div class="flex flex-col md:flex-row h-full">
+                
+                <!-- Image Display Area -->
+                <div class="md:w-3/4 p-2 md:p-4 flex items-center justify-center bg-gray-800 overflow-hidden relative">
+                    <!-- Watermark added directly over the image container -->
+                    <div class="watermark-overlay text-4xl text-gray-200">Desert Vistas ©</div>
+                    <img id="modalImage" 
+                         src="" 
+                         alt="Selected Photo" 
+                         class="max-h-full max-w-full object-contain protected-image"
+                         oncontextmenu="return false;"
+                         ondragstart="return false;">
+                    
+                    <button onclick="closeModal()" class="absolute top-2 right-2 p-2 rounded-full bg-black/50 text-white hover:bg-red-700 transition z-20">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+                
+                <!-- Details and Description Sidebar -->
+                <div class="md:w-1/4 p-6 space-y-4 overflow-y-auto">
+                    <h3 id="modalTitle" class="text-2xl font-bold text-gray-800 border-b pb-2 border-gray-200"></h3>
+                    <div class="space-y-2">
+                        <p class="text-base font-semibold text-gray-700">Description:</p>
+                        <p id="modalDescription" class="text-gray-600 text-sm"></p>
+                    </div>
+                    
+                    <div class="space-y-2 pt-2 border-t border-gray-200">
+                        <p class="text-base font-semibold text-gray-700">Details:</p>
+                        <p class="text-gray-500"><span class="font-medium text-gray-700">Location:</span> <span id="modalLocation"></span></p>
+                        <p class="text-gray-500"><span class="font-medium text-gray-700">Dimensions:</span> <span id="modalDimensions"></span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // Data structure for the uploaded images and their metadata
+        const photos = [
+            // --- Curated List (23 Images) ---
+            { id: 1, title: "Grand Arch", location: "Arches National Park, UT", description: "A major arch formation rising dramatically from the desert floor.", filepath: "arches_arch.jpeg", ratio: "3/2", dimensions: "4500x3000 px" },
+            { id: 2, title: "Canyonlands Perspective 2", location: "Canyonlands NP, UT", description: "A secondary perspective of the Canyonlands landscape.", filepath: "canyon lands 2.jpeg", ratio: "3/2", dimensions: "5000x3333 px" },
+            { id: 3, title: "Deep Canyonlands", location: "Canyonlands NP, UT", description: "Focus on a deep, shadowed section of the canyon.", filepath: "canyon lands canyon.jpeg", ratio: "4/5", dimensions: "3200x4000 px" },
+            { id: 4, title: "Canyonlands Overview", location: "Canyonlands National Park, UT", description: "A sweeping view of the multi-layered canyons.", filepath: "CanyonLands.jpeg", ratio: "3/2", dimensions: "5000x3333 px" },
+            { id: 5, title: "Delicate Arch", location: "Arches National Park, UT", description: "The iconic arch at sunset, captured from a distance.", filepath: "Delicate_Arch.jpeg", ratio: "3/2", dimensions: "4000x2667 px" },
+            { id: 6, title: "Double Arch Interior", location: "Arches National Park, UT", description: "Looking up through the massive openings of Double Arch.", filepath: "Double_Arch_2.jpeg", ratio: "4/5", dimensions: "3200x4000 px" },
+            { id: 7, title: "Double Arch Base", location: "Arches National Park, UT", description: "The twin arches towering over the hikers below.", filepath: "DoubleArch.jpeg", ratio: "3/2", dimensions: "4500x3000 px" },
+            { id: 8, title: "Flagstaff Mountain Panorama", location: "Flagstaff, AZ", description: "A wide-angle landscape showing the mountains around Flagstaff.", filepath: "Flagstaff_panorama.jpeg", ratio: "16/9", dimensions: "6000x3375 px" },
+            { id: 9, title: "Flagstaff Snowbowl", location: "San Francisco Peaks, AZ", description: "Snowy landscape near the ski resort.", filepath: "flagstaff_snowbowl.jpeg", ratio: "4/3", dimensions: "4800x3600 px" },
+            { id: 10, title: "Grand Canyon Vista", location: "Grand Canyon National Park, AZ", description: "A vast, sweeping view into the depths of the iconic Grand Canyon.", filepath: "GrandCanyon.jpeg", ratio: "16/9", dimensions: "6000x3375 px" },
+            { id: 11, title: "Hoover Dam Structure", location: "Hoover Dam, NV/AZ", description: "A detailed view of the massive concrete structure and architecture.", filepath: "HoverDam.jpeg", ratio: "3/2", dimensions: "5000x3333 px" },
+            { id: 12, title: "Kanya Kumari Temple", location: "Kanya Kumari, India", description: "The colorful ancient temple complex at the southern tip of India.", filepath: "Kanya_Kumari.jpeg", ratio: "3/2", dimensions: "5000x3333 px" },
+            { id: 13, title: "Lake Pleasant Sunset", location: "Lake Pleasant, AZ", description: "Wide-angle view of the lake under a dramatic sunset.", filepath: "Lake_Pleasent_2.jpeg", ratio: "16/9", dimensions: "6000x3375 px" },
+            { id: 14, title: "LA Boat Hangar", location: "Los Angeles, CA", description: "Architectural shot of a vast boat hangar in Southern California.", filepath: "Los_Angeles_Boat_Hanger.jpeg", ratio: "4/5", dimensions: "3200x4000 px" },
+            { id: 15, title: "Monument Valley Buttes", location: "Monument Valley, UT/AZ", description: "The iconic sandstone buttes rising from the desert plain.", filepath: "Monument_Valley.jpeg", ratio: "3/2", dimensions: "4500x3000 px" },
+            { id: 16, title: "Nandi Hills", location: "Nandi Hills, India", description: "Scenic view from the hill station, often shrouded in mist.", filepath: "Nandi_Hills.jpg", ratio: "4/3", dimensions: "4000x3000 px" },
+            { id: 17, title: "Oak Creek Canyon", location: "Sedona, AZ", description: "Lush vegetation and flowing water contrasted against the red rocks.", filepath: "Oak_Creek.jpeg", ratio: "4/3", dimensions: "4800x3600 px" },
+            { id: 18, title: "Reservoir View", location: "Nevada/Arizona", description: "Water level changes visible on the steep sides of the reservoir.", filepath: "reservoir.jpg", ratio: "16/9", dimensions: "5500x3094 px" },
+            { id: 19, title: "Road to Arches", location: "Arches National Park, UT", description: "A classic leading line shot of the road winding through the park entrance.", filepath: "road_arches.jpeg", ratio: "3/2", dimensions: "5000x3333 px" },
+            { id: 20, title: "San Diego Coast", location: "San Diego, CA", description: "A wide coastal view of the Pacific Ocean and city skyline.", filepath: "Sandiego.jpeg", ratio: "16/9", dimensions: "6000x3375 px" },
+            { id: 21, title: "Sedona Red Rocks", location: "Sedona, AZ", description: "Vibrant red rock formations under a clear blue sky.", filepath: "Sedona.jpeg", ratio: "4/3", dimensions: "4000x3000 px" },
+            { id: 22, title: "Upheaval Dome", location: "Canyonlands National Park, UT", description: "The geological anomaly known as Upheaval Dome.", filepath: "UpheavelDome.jpeg", ratio: "3/2", dimensions: "5000x3333 px" },
+            { id: 23, title: "American Road Trip", location: "Arizona/Utah", description: "A classic long-road view, perfect for a banner.", filepath: "us_road_pic_for_the_banner.jpeg", ratio: "16/9", dimensions: "6000x3375 px" }
+        ];
+
+        // Function to render the gallery items
+        function renderGallery() {
+            const galleryElement = document.getElementById('gallery');
+            let html = '';
+
+            photos.forEach(photo => {
+                // IMPORTANT: Since some filenames have spaces, we must ensure the path is correctly constructed.
+                // The browser will handle the space, but it's important to use the exact name.
+                const imageUrl = `images/${photo.filepath}`;
+                
+                // Determine CSS class based on ratio for placeholder image sizing
+                let imageClass = "w-full object-cover rounded-t-xl protected-image";
+                if (photo.ratio === "16/5") { // If we ever bring back the pano wide feature
+                    imageClass += " h-auto"; 
+                }
+
+                // Construct the HTML for each photo card
+                html += `
+                    <div class="photo-card" onclick="openModal(${photo.id})">
+                        <div class="bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer relative">
+                            <!-- Watermark on the gallery tile -->
+                            <div class="watermark-overlay text-gray-800 text-base opacity-20">Desert Vistas ©</div>
+
+                            <!-- Image using the actual uploaded file path -->
+                            <img src="${imageUrl}" 
+                                 alt="${photo.title}" 
+                                 class="${imageClass}"
+                                 onerror="this.onerror=null; this.src='https://placehold.co/600x400/3c3b37/ffffff?text=Image+Not+Found';"
+                                 loading="lazy"
+                                 style="aspect-ratio: ${photo.ratio || '4/3'};"
+                                 oncontextmenu="return false;"
+                                 ondragstart="return false;"> 
+                            
+                            <!-- Card Footer -->
+                            <div class="p-4">
+                                <h3 class="text-lg font-semibold text-gray-800 truncate">${photo.title}</h3>
+                                <p class="text-sm text-gray-500 flex items-center mt-1">
+                                    <i data-lucide="map-pin" class="w-4 h-4 mr-1"></i> 
+                                    ${photo.location}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            galleryElement.innerHTML = html;
+            // Re-render lucide icons after injecting new HTML
+            lucide.createIcons(); 
+        }
+
+        // Modal functions
+        function openModal(photoId) {
+            const photo = photos.find(p => p.id === photoId);
+            if (!photo) return;
+
+            // Populate Modal Content
+            document.getElementById('modalImage').src = `images/${photo.filepath}`; // Use actual image path for modal
+            document.getElementById('modalTitle').textContent = photo.title;
+            document.getElementById('modalDescription').textContent = photo.description;
+            document.getElementById('modalLocation').textContent = photo.location;
+            document.getElementById('modalDimensions').textContent = photo.dimensions || "N/A";
+
+            // Display Modal
+            const modal = document.getElementById('imageModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling background
+            lucide.createIcons(); // Ensure icons in modal are rendered
+        }
+
+        function closeModal(event) {
+            // Close only if clicking the background overlay or the close button
+            if (!event || event.target === document.getElementById('imageModal')) {
+                const modal = document.getElementById('imageModal');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                document.body.style.overflow = ''; // Restore scrolling
+            }
+        }
+        
+        // Contact Form Submission (for demo purposes)
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const messageBox = document.getElementById('messageBox');
+            
+            // Simulate form submission and success message
+            messageBox.classList.remove('hidden');
+            messageBox.textContent = "Thank you for your message! I'll be in touch soon.";
+            
+            setTimeout(() => {
+                messageBox.classList.add('hidden');
+                this.reset();
+            }, 3000);
+        });
+
+
+        // Initialize the gallery on page load
+        window.onload = renderGallery;
+
+        // Add a keyboard listener for closing the modal with the Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && document.getElementById('imageModal').classList.contains('flex')) {
+                closeModal();
+            }
+        });
+
+    </script>
+</body>
+</html>
