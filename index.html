@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Folder-Based Photo Gallery</title>
+    <title>epic travel cuts</title>
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Load Lucide Icons for aesthetic elements -->
@@ -37,20 +37,22 @@
             z-index: 50;
         }
 
-        /* Watermark Styling - MOVED TO BOTTOM RIGHT */
+        /* Watermark Styling - Now dynamically positioned by JS based on image boundaries */
         .watermark-overlay {
-            position: absolute;
-            bottom: 20px; /* Offset from bottom */
-            right: 20px;  /* Offset from right */
-            transform: rotate(-10deg); /* Slight rotation */
-            pointer-events: none; 
-            opacity: 0.15; /* Increased opacity slightly to be more visible in corner */
-            font-size: 1.5rem; /* Smaller size for corner */
+            position: absolute; /* Relative to its transformed parent, #zoomableContainer */
+            transform: rotate(-10deg); 
+            opacity: 0; /* Default hidden, visible when image is loaded */
+            font-size: 1.5rem;
             font-weight: bold;
             color: white;
             z-index: 10;
             user-select: none; 
             white-space: nowrap;
+            /* Added transition for smooth movement/fade-in */
+            transition: transform 0.3s ease-out, opacity 0.3s;
+        }
+        .watermark-visible {
+            opacity: 0.15 !important;
         }
         
         /* Make images non-draggable and non-selectable */
@@ -73,10 +75,12 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative; /* Needed for watermark absolute positioning */
         }
 
         #modalImage {
-            transform-origin: 0 0; 
+            /* MODIFIED: Changed origin to center for proper zoom */
+            transform-origin: center center; 
             transition: transform 0.3s ease-out; 
             max-height: 100%;
             max-width: 100%;
@@ -92,9 +96,9 @@
             cursor: grabbing !important;
         }
         
-        /* ADJUSTED: Custom class to shift the image focus further down (60% from top) */
+        /* ADJUSTED: Custom class to shift the image focus UP to show more of the top content (40% from top) */
         .object-center-down {
-            object-position: 35% 45%; 
+            object-position: 50% 40%; 
         }
     </style>
 </head>
@@ -103,7 +107,11 @@
     <!-- Header & Navigation -->
     <header class="bg-white/90 sticky top-0 border-b border-gray-200 shadow-sm z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
-            <h1 class="text-2xl font-extrabold tracking-tight text-red-700">PHOTO FOLDERS</h1>
+            <!-- UPDATED: Branding with Logo and Channel Name -->
+            <a href="#" onclick="showPage('category-grid-page')" class="flex items-center space-x-2">
+                <img src="logo.jpg" alt="Epic Travel Cuts Logo" class="h-8 w-8 rounded-full" onerror="this.onerror=null;this.src='https://placehold.co/32x32/1a1a1a/ffffff?text=E';" />
+                <h1 class="text-2xl font-extrabold tracking-tight text-red-700">EPIC TRAVEL CUTS</h1>
+            </a>
             <nav>
                 <a href="#" onclick="showPage('category-grid-page')" class="text-gray-600 hover:text-red-700 font-medium transition duration-150 ease-in-out px-3 py-2 rounded-lg">Folders</a>
                 <a href="#contact" class="text-gray-600 hover:text-red-700 font-medium transition duration-150 ease-in-out px-3 py-2 rounded-lg">Contact</a>
@@ -113,7 +121,7 @@
 
     <!-- Hero Section - Now loads dynamically from data.json -->
     <section class="relative h-64 bg-gray-900 flex items-end justify-center overflow-hidden mb-12 pb-8">
-        <!-- MODIFIED: Using custom class 'object-center-down' to shift the focus further down -->
+        <!-- MODIFIED: Using custom class 'object-center-down' to shift the focus further down (visually) -->
         <img id="heroImage" 
              src="https://placehold.co/1200x400/374151/ffffff?text=Loading+Collections..." 
              alt="Image Collections Banner" 
@@ -157,27 +165,30 @@
         </div>
     </main>
     
-    <!-- Contact Section (Kept for completeness) -->
+    <!-- Contact Section -->
     <section id="contact" class="bg-gray-800 text-white py-16 mt-12">
         <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 class="text-4xl font-bold mb-4 text-red-500">Contact</h2>
-            <form id="contactForm" class="space-y-4">
-                <input type="text" placeholder="Your Name" required class="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:ring-red-500 focus:border-red-500">
-                <input type="email" placeholder="Your Email" required class="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:ring-red-500 focus:border-red-500">
-                <textarea placeholder="Your Message" rows="4" required class="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:ring-red-500 focus:border-red-500"></textarea>
-                <button type="submit" class="w-full md:w-auto px-6 py-3 bg-red-700 text-white font-semibold rounded-lg shadow-md hover:bg-red-600 transition duration-300">
-                    Send Message 
-                    <i data-lucide="send" class="w-4 h-4 inline-block ml-2 align-middle"></i>
-                </button>
-            </form>
-            <div id="messageBox" class="mt-4 p-3 rounded-lg bg-green-500 text-white hidden">Thank you for your message!</div>
+            <h2 class="text-4xl font-bold mb-6 text-red-500">Contact Information</h2>
+            <!-- UPDATED: Static contact information -->
+            <div class="space-y-4 text-lg">
+                <div class="flex items-center justify-center space-x-3">
+                    <i data-lucide="user" class="w-6 h-6 text-red-400"></i>
+                    <span class="font-semibold">Name:</span> 
+                    <span>Kasi Viswanadh</span>
+                </div>
+                <div class="flex items-center justify-center space-x-3">
+                    <i data-lucide="mail" class="w-6 h-6 text-red-400"></i>
+                    <span class="font-semibold">Email:</span> 
+                    <a href="mailto:kasisripada17@gmail.com" class="text-red-300 hover:text-red-100 transition">kasisripada17@gmail.com</a>
+                </div>
+            </div>
         </div>
     </section>
 
     <!-- Footer -->
     <footer class="bg-gray-900 py-6">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-400">
-            <p>&copy; 2025 Image Gallery. All Rights Reserved.</p>
+            <p>&copy; 2025 EPIC TRAVEL CUTS. All Rights Reserved.</p>
         </div>
     </footer>
 
@@ -186,7 +197,6 @@
         <div id="modalContentContainer" class="bg-gray-900 rounded-xl shadow-2xl max-w-full max-h-[95vh] w-[95vw] h-[95vh] overflow-hidden" onclick="event.stopPropagation()">
             
             <div id="modalImageArea" class="w-full h-full flex items-center justify-center relative">
-                <div class="watermark-overlay">FOLDER GALLERY</div>
                 
                 <div id="zoomableContainer" 
                      onmousedown="startPan(event)" 
@@ -196,12 +206,16 @@
                      ontouchstart="startPan(event)"
                      ontouchmove="panImage(event)"
                      ontouchend="stopPan()">
+                    
                     <img id="modalImage" 
                          src="" 
                          alt="Selected Photo" 
                          class="protected-image"
                          oncontextmenu="return false;"
                          ondragstart="return false;">
+
+                    <!-- UPDATED: Watermark moved inside the zoomable container to move with the image -->
+                    <div id="watermark" class="watermark-overlay">EPIC TRAVEL CUTS</div>
                 </div>
                 
                 <!-- Close Button -->
@@ -254,6 +268,7 @@
         // Elements
         let modalImage;
         let zoomableContainer;
+        let watermark; // New global reference for the watermark element
 
         // --- Core Utility: Get the final image source URL ---
         // Ensures the final path is: images/FolderName/ImageFile.jpeg
@@ -396,11 +411,21 @@
             translateX = 0;
             translateY = 0;
             modalImage.style.transform = ''; 
+            watermark.style.opacity = '0'; // Hide watermark initially
+            watermark.classList.remove('watermark-visible');
+
 
             // 2. Populate Modal Details
-            document.getElementById('modalImage').src = getImageUrl(photo.filepath); 
+            modalImage.src = getImageUrl(photo.filepath); 
+            
+            // 3. Set up onload to position and display watermark
+            modalImage.onload = () => {
+                // Ensures initial transform and watermark positioning happen after image dimensions are known
+                updateTransform(); 
+                watermark.classList.add('watermark-visible'); // Show watermark
+            };
 
-            // 3. Update Navigation/Zoom controls
+            // 4. Update Navigation/Zoom controls
             updateTransform(); 
             updateNavigationButtons();
         }
@@ -410,6 +435,8 @@
 
             modalImage = document.getElementById('modalImage');
             zoomableContainer = document.getElementById('zoomableContainer');
+            watermark = document.getElementById('watermark'); // Get watermark element
+            
             currentPhotoIndex = index;
             const photo = currentPhotoList[currentPhotoIndex];
             
@@ -430,6 +457,7 @@
                 modal.classList.remove('flex');
                 document.body.style.overflow = ''; 
                 currentPhotoIndex = -1; // Reset index
+                watermark.classList.remove('watermark-visible'); // Hide watermark
             }
         }
 
@@ -462,6 +490,35 @@
         // --- ZOOM/PAN CONTROL FUNCTIONS ---
         function updateTransform() {
             modalImage.style.transform = `scale(${scale}) translate(${translateX}px, ${translateY}px)`;
+            
+            // --- Watermark Logic ---
+            if (modalImage.offsetHeight > 0 && watermark) {
+                // Get the size of the unscaled image (limited by the modal container)
+                const imgWidth = modalImage.offsetWidth;
+                const imgHeight = modalImage.offsetHeight;
+                const wmWidth = watermark.offsetWidth;
+                const wmHeight = watermark.offsetHeight;
+
+                // 1. Calculate Initial Position (Offset from the center to the bottom-right corner of the image)
+                const margin = 30; // Inner padding from the image edge
+                const initialOffsetX = (imgWidth / 2) - (wmWidth / 2) - margin;
+                const initialOffsetY = (imgHeight / 2) - (wmHeight / 2) - margin;
+                
+                // 2. Apply Combined Transform
+                // The watermark's transform must include:
+                // a) Initial Position (move from center to corner)
+                // b) Scaling (zoom)
+                // c) Panning (translate)
+                // d) Rotation (aesthetic style)
+                watermark.style.transform = 
+                    `translate(${initialOffsetX}px, ${initialOffsetY}px) ` + // 1. Initial Position (bottom right corner of image)
+                    `scale(${scale}) ` +                                      // 2. Zoom Level
+                    `translate(${translateX}px, ${translateY}px) ` +          // 3. Pan movement
+                    `rotate(-10deg)`;                                        // 4. Rotation
+            }
+            // --- End Watermark Logic ---
+
+
             document.getElementById('zoomInBtn').disabled = scale >= maxScale;
             document.getElementById('zoomOutBtn').disabled = scale <= minScale;
             if (scale > minScale) {
@@ -493,6 +550,7 @@
                 isDragging = true;
                 const clientX = e.clientX || e.touches[0].clientX;
                 const clientY = e.clientY || e.touches[0].clientY;
+                // Note: StartX and StartY are calculated based on the position *before* scale is applied to the translation values
                 startX = clientX - translateX * scale; 
                 startY = clientY - translateY * scale; 
                 zoomableContainer.style.cursor = 'grabbing';
@@ -551,17 +609,7 @@
             }
         }
         
-        // Contact Form Submission (for demo purposes)
-        document.getElementById('contactForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const messageBox = document.getElementById('messageBox');
-            messageBox.classList.remove('hidden');
-            messageBox.textContent = "Thank you for your message!";
-            setTimeout(() => {
-                messageBox.classList.add('hidden');
-                this.reset();
-            }, 3000);
-        });
+        // Note: Contact form submission logic removed as it's replaced by static contact info.
 
         /**
          * Loads image data from the data.json file.
@@ -591,7 +639,10 @@
             // Process the raw file names into the 'photos' structure
             photos = actualFileNames.map((fullPath, index) => {
                 // Example path: "Arches/IMG_7140.jpeg"
-                const parts = fullPath.split('/');
+                // The actual path structure in data.json is an object: { "full": "Arches/IMG_7140.jpeg", "thumbnail": "..." }
+                const filePath = typeof fullPath === 'string' ? fullPath : fullPath.full;
+                
+                const parts = filePath.split('/');
                 const folderName = parts[0]; 
                 const fileNameOnly = parts.length > 1 ? parts[1] : folderName; 
                 
@@ -603,7 +654,7 @@
                         title: fileNameOnly, 
                         // Location is the folder name, used for category filtering
                         location: folderName, 
-                        filepath: fullPath, 
+                        filepath: filePath, 
                         ratio: index % 3 === 0 ? "4/5" : "3/2", 
                     };
                 }

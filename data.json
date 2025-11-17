@@ -1,47 +1,182 @@
 [
-    "Sedona/IMG_2414.jpeg",
-    "Sedona/Oak_Creek.jpeg",
-    "Sedona/Sedona.jpeg",
-    "Sedona/IMG_2460.jpeg",
-    "Sandiego/IMG_5861.jpg",
-    "Sandiego/IMG_9724.jpg",
-    "Sandiego/Sandiego.jpeg",
-    "Canyon Lands National park/snow on plants canyon lands.jpeg",
-    "Canyon Lands National park/canyonlands_2.jpeg",
-    "Canyon Lands National park/canyon lands canyon.jpeg",
-    "Canyon Lands National park/CanyonLands.jpeg",
-    "Canyon Lands National park/canyon lands 2.jpeg",
-    "Canyon Lands National park/UpheavelDome.jpeg",
-    "Phoenix/IMG_1397.jpeg",
-    "Arches National Park/road_arches.jpeg",
-    "Arches National Park/Arches.jpeg",
-    "Arches National Park/Delicate_Arch.jpeg",
-    "Arches National Park/Double_Arch_2.jpeg",
-    "Arches National Park/arches_arch.jpeg",
-    "Arches National Park/DoubleArch.jpeg",
-    "Arches National Park/Arches_roads.jpeg",
-    "Grand Canyon/GrandCanyon.jpeg",
-    "lakePleasent/Lake_Pleasant_2.jpeg",
-    "LosAngeles/Los_Angeles_Boat_Hanger.jpeg",
-    "LosAngeles/IMG_0111.jpeg",
-    "LosAngeles/IMG_0052.jpeg",
-    "LosAngeles/IMG_0115.jpeg",
-    "LosAngeles/IMG_0132.jpeg",
-    "India/IMG_20221218_180950-EDIT.jpg",
-    "India/IMG_8209-EDIT.jpg",
-    "India/IMG_20221227_141941.jpg",
-    "India/IMG_8355.jpeg",
-    "India/reservoir.jpg",
-    "India/Kanya_Kumari.jpeg",
-    "India/Nandi_Hills.jpg",
-    "monument Valley/Monument_Valley.jpeg",
-    "monument Valley/IMG_6397.JPG",
-    "HorseShoe Bend, Arizona/IMG_0490.jpeg",
-    "LasVegas/HooverDam.jpeg",
-    "LasVegas/IMG_0942-EDIT-EDIT (1).jpg",
-    "LasVegas/IMG_1010-EDIT (1).jpg",
-    "Flagstaff/flagstaff_snowbowl.jpeg",
-    "Flagstaff/Flagstaff_panorama.jpeg",
-    "Flagstaff/gandola.jpeg",
-    "Flagstaff/Snow.jpeg"
+  {
+    "full": "Sedona/IMG_2414_comp.jpeg",
+    "thumbnail": "Sedona/IMG_2414_thumb.jpeg"
+  },
+  {
+    "full": "Sedona/Oak_Creek_comp.jpeg",
+    "thumbnail": "Sedona/Oak_Creek_thumb.jpeg"
+  },
+  {
+    "full": "Sedona/Sedona_comp.jpeg",
+    "thumbnail": "Sedona/Sedona_thumb.jpeg"
+  },
+  {
+    "full": "Sedona/IMG_2460_comp.jpeg",
+    "thumbnail": "Sedona/IMG_2460_thumb.jpeg"
+  },
+  {
+    "full": "Sandiego/IMG_5861_comp.jpg",
+    "thumbnail": "Sandiego/IMG_5861_thumb.jpg"
+  },
+  {
+    "full": "Sandiego/IMG_9724_comp.jpg",
+    "thumbnail": "Sandiego/IMG_9724_thumb.jpg"
+  },
+  {
+    "full": "Sandiego/Sandiego_comp.jpeg",
+    "thumbnail": "Sandiego/Sandiego_thumb.jpeg"
+  },
+  {
+    "full": "Canyon Lands National park/snow on plants canyon lands_comp.jpeg",
+    "thumbnail": "Canyon Lands National park/snow on plants canyon lands_thumb.jpeg"
+  },
+  {
+    "full": "Canyon Lands National park/canyonlands_2_comp.jpeg",
+    "thumbnail": "Canyon Lands National park/canyonlands_2_thumb.jpeg"
+  },
+  {
+    "full": "Canyon Lands National park/canyon lands canyon_comp.jpeg",
+    "thumbnail": "Canyon Lands National park/canyon lands canyon_thumb.jpeg"
+  },
+  {
+    "full": "Canyon Lands National park/CanyonLands_comp.jpeg",
+    "thumbnail": "Canyon Lands National park/CanyonLands_thumb.jpeg"
+  },
+  {
+    "full": "Canyon Lands National park/canyon lands 2_comp.jpeg",
+    "thumbnail": "Canyon Lands National park/canyon lands 2_thumb.jpeg"
+  },
+  {
+    "full": "Canyon Lands National park/UpheavelDome_comp.jpeg",
+    "thumbnail": "Canyon Lands National park/UpheavelDome_thumb.jpeg"
+  },
+  {
+    "full": "Phoenix/IMG_1397_comp.jpeg",
+    "thumbnail": "Phoenix/IMG_1397_thumb.jpeg"
+  },
+  {
+    "full": "Arches National Park/road_arches_comp.jpeg",
+    "thumbnail": "Arches National Park/road_arches_thumb.jpeg"
+  },
+  {
+    "full": "Arches National Park/Arches_comp.jpeg",
+    "thumbnail": "Arches National Park/Arches_thumb.jpeg"
+  },
+  {
+    "full": "Arches National Park/Delicate_Arch_comp.jpeg",
+    "thumbnail": "Arches National Park/Delicate_Arch_thumb.jpeg"
+  },
+  {
+    "full": "Arches National Park/Double_Arch_2_comp.jpeg",
+    "thumbnail": "Arches National Park/Double_Arch_2_thumb.jpeg"
+  },
+  {
+    "full": "Arches National Park/arches_arch_comp.jpeg",
+    "thumbnail": "Arches National Park/arches_arch_thumb.jpeg"
+  },
+  {
+    "full": "Arches National Park/DoubleArch_comp.jpeg",
+    "thumbnail": "Arches National Park/DoubleArch_thumb.jpeg"
+  },
+  {
+    "full": "Arches National Park/Arches_roads_comp.jpeg",
+    "thumbnail": "Arches National Park/Arches_roads_thumb.jpeg"
+  },
+  {
+    "full": "Grand Canyon/GrandCanyon_comp.jpeg",
+    "thumbnail": "Grand Canyon/GrandCanyon_thumb.jpeg"
+  },
+  {
+    "full": "lakePleasent/Lake_Pleasant_2_comp.jpeg",
+    "thumbnail": "lakePleasent/Lake_Pleasant_2_thumb.jpeg"
+  },
+  {
+    "full": "LosAngeles/Los_Angeles_Boat_Hanger_comp.jpeg",
+    "thumbnail": "LosAngeles/Los_Angeles_Boat_Hanger_thumb.jpeg"
+  },
+  {
+    "full": "LosAngeles/IMG_0111_comp.jpeg",
+    "thumbnail": "LosAngeles/IMG_0111_thumb.jpeg"
+  },
+  {
+    "full": "LosAngeles/IMG_0052_comp.jpeg",
+    "thumbnail": "LosAngeles/IMG_0052_thumb.jpeg"
+  },
+  {
+    "full": "LosAngeles/IMG_0115_comp.jpeg",
+    "thumbnail": "LosAngeles/IMG_0115_thumb.jpeg"
+  },
+  {
+    "full": "LosAngeles/IMG_0132_comp.jpeg",
+    "thumbnail": "LosAngeles/IMG_0132_thumb.jpeg"
+  },
+  {
+    "full": "India/IMG_20221218_180950-EDIT_comp.jpg",
+    "thumbnail": "India/IMG_20221218_180950-EDIT_thumb.jpg"
+  },
+  {
+    "full": "India/IMG_8209-EDIT_comp.jpg",
+    "thumbnail": "India/IMG_8209-EDIT_thumb.jpg"
+  },
+  {
+    "full": "India/IMG_20221227_141941_comp.jpg",
+    "thumbnail": "India/IMG_20221227_141941_thumb.jpg"
+  },
+  {
+    "full": "India/IMG_8355_comp.jpeg",
+    "thumbnail": "India/IMG_8355_thumb.jpeg"
+  },
+  {
+    "full": "India/reservoir_comp.jpg",
+    "thumbnail": "India/reservoir_thumb.jpg"
+  },
+  {
+    "full": "India/Kanya_Kumari_comp.jpeg",
+    "thumbnail": "India/Kanya_Kumari_thumb.jpeg"
+  },
+  {
+    "full": "India/Nandi_Hills_comp.jpg",
+    "thumbnail": "India/Nandi_Hills_thumb.jpg"
+  },
+  {
+    "full": "monument Valley/Monument_Valley_comp.jpeg",
+    "thumbnail": "monument Valley/Monument_Valley_thumb.jpeg"
+  },
+  {
+    "full": "monument Valley/IMG_6397_comp.JPG",
+    "thumbnail": "monument Valley/IMG_6397_thumb.JPG"
+  },
+  {
+    "full": "HorseShoe Bend, Arizona/IMG_0490_comp.jpeg",
+    "thumbnail": "HorseShoe Bend, Arizona/IMG_0490_thumb.jpeg"
+  },
+  {
+    "full": "LasVegas/HooverDam_comp.jpeg",
+    "thumbnail": "LasVegas/HooverDam_thumb.jpeg"
+  },
+  {
+    "full": "LasVegas/IMG_0942-EDIT-EDIT (1)_comp.jpg",
+    "thumbnail": "LasVegas/IMG_0942-EDIT-EDIT (1)_thumb.jpg"
+  },
+  {
+    "full": "LasVegas/IMG_1010-EDIT (1)_comp.jpg",
+    "thumbnail": "LasVegas/IMG_1010-EDIT (1)_thumb.jpg"
+  },
+  {
+    "full": "Flagstaff/flagstaff_snowbowl_comp.jpeg",
+    "thumbnail": "Flagstaff/flagstaff_snowbowl_thumb.jpeg"
+  },
+  {
+    "full": "Flagstaff/Flagstaff_panorama_comp.jpeg",
+    "thumbnail": "Flagstaff/Flagstaff_panorama_thumb.jpeg"
+  },
+  {
+    "full": "Flagstaff/gandola_comp.jpeg",
+    "thumbnail": "Flagstaff/gandola_thumb.jpeg"
+  },
+  {
+    "full": "Flagstaff/Snow_comp.jpeg",
+    "thumbnail": "Flagstaff/Snow_thumb.jpeg"
+  }
 ]
