@@ -3,38 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Desert Vistas - Photography Portfolio</title>
+    <title>Folder-Based Photo Gallery</title>
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Load Lucide Icons for aesthetic elements -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        /* Custom styles for aesthetic (Reverting to original rounded/masonry style) */
+        /* Custom styles for aesthetic */
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f7f7f5; /* Very light off-white */
             color: #333;
         }
+        /* Uses grid instead of columns for a predictable layout when only image name is shown */
         .gallery-grid {
-            /* Masonry-like grid using columns for dynamic height cards */
-            column-count: 1;
-            column-gap: 1.5rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
         }
-        @media (min-width: 640px) {
-            .gallery-grid {
-                column-count: 2;
-            }
-        }
-        @media (min-width: 1024px) {
-            .gallery-grid {
-                column-count: 3;
-            }
-        }
+        
         .photo-card {
-            display: inline-block;
-            width: 100%;
-            margin-bottom: 1.5rem;
-            break-inside: avoid;
             transition: transform 0.2s, box-shadow 0.2s;
         }
         .photo-card:hover {
@@ -44,24 +32,24 @@
         
         /* Style for the modal background */
         .modal-overlay {
-            background-color: rgba(0, 0, 0, 0.95); /* Darker overlay for better viewing */
+            background-color: rgba(0, 0, 0, 0.95); 
             backdrop-filter: blur(10px);
             z-index: 50;
         }
 
-        /* Watermark Styling */
+        /* Watermark Styling - MOVED TO BOTTOM RIGHT */
         .watermark-overlay {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(-45deg); /* Rotate for better deterrent */
-            pointer-events: none; /* Allows clicks to pass through to the element below */
-            opacity: 0.2;
-            font-size: 1.5rem;
+            bottom: 20px; /* Offset from bottom */
+            right: 20px;  /* Offset from right */
+            transform: rotate(-10deg); /* Slight rotation */
+            pointer-events: none; 
+            opacity: 0.15; /* Increased opacity slightly to be more visible in corner */
+            font-size: 1.5rem; /* Smaller size for corner */
             font-weight: bold;
             color: white;
             z-index: 10;
-            user-select: none; /* Prevents text selection */
+            user-select: none; 
             white-space: nowrap;
         }
         
@@ -71,9 +59,42 @@
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
-            pointer-events: auto; /* Ensure it still triggers click event for modal */
+            pointer-events: auto; 
             -webkit-user-drag: none;
             user-drag: none;
+        }
+
+        /* Styles for the Zoom/Pan Feature */
+        #zoomableContainer {
+            width: 100%;
+            height: 100%;
+            overflow: hidden; 
+            cursor: zoom-in; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #modalImage {
+            transform-origin: 0 0; 
+            transition: transform 0.3s ease-out; 
+            max-height: 100%;
+            max-width: 100%;
+            object-fit: contain;
+            user-select: none;
+        }
+
+        /* Cursor change when zoomed in */
+        .panning {
+            cursor: grab !important;
+        }
+        .panning:active {
+            cursor: grabbing !important;
+        }
+        
+        /* ADJUSTED: Custom class to shift the image focus further down (60% from top) */
+        .object-center-down {
+            object-position: 35% 45%; 
         }
     </style>
 </head>
@@ -82,40 +103,64 @@
     <!-- Header & Navigation -->
     <header class="bg-white/90 sticky top-0 border-b border-gray-200 shadow-sm z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
-            <h1 class="text-2xl font-extrabold tracking-tight text-red-700">DESERT VISTAS</h1>
+            <h1 class="text-2xl font-extrabold tracking-tight text-red-700">PHOTO FOLDERS</h1>
             <nav>
-                <a href="#" class="text-gray-600 hover:text-red-700 font-medium transition duration-150 ease-in-out px-3 py-2 rounded-lg">Portfolio</a>
+                <a href="#" onclick="showPage('category-grid-page')" class="text-gray-600 hover:text-red-700 font-medium transition duration-150 ease-in-out px-3 py-2 rounded-lg">Folders</a>
                 <a href="#contact" class="text-gray-600 hover:text-red-700 font-medium transition duration-150 ease-in-out px-3 py-2 rounded-lg">Contact</a>
             </nav>
         </div>
     </header>
 
-    <!-- Hero Section (Now using the road_arches.jpeg image) -->
-    <section class="relative h-96 bg-gray-900 flex items-center justify-center overflow-hidden mb-12">
-        <img src="images/road_arches.jpeg" 
-             alt="Road winding through Arches National Park" 
-             class="absolute inset-0 w-full h-full object-cover opacity-70">
+    <!-- Hero Section - Now loads dynamically from data.json -->
+    <section class="relative h-64 bg-gray-900 flex items-end justify-center overflow-hidden mb-12 pb-8">
+        <!-- MODIFIED: Using custom class 'object-center-down' to shift the focus further down -->
+        <img id="heroImage" 
+             src="https://placehold.co/1200x400/374151/ffffff?text=Loading+Collections..." 
+             alt="Image Collections Banner" 
+             class="absolute inset-0 w-full h-full object-cover object-center-down opacity-70"
+             onerror="this.onerror=null; this.src='https://placehold.co/1200x400/581c1c/ffffff?text=Image+Collections';"
+             loading="lazy">
         <div class="relative z-10 text-center p-4 bg-black/30 rounded-xl">
-            <h2 class="text-5xl md:text-7xl font-bold text-white mb-2">The Red Earth Collection</h2>
-            <p class="text-xl text-gray-200">A journey through the stunning landscapes of the American Southwest.</p>
+            <h2 class="text-5xl md:text-6xl font-bold text-white mb-2">Image Collections</h2>
         </div>
     </section>
 
-    <!-- Main Content - Photo Gallery -->
+    <!-- Main Content Container -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h2 class="text-3xl font-semibold text-center mb-10 text-gray-800 border-b-2 border-red-700 inline-block pb-1 mx-auto">Selected Works</h2>
+        
+        <!-- ============================================== -->
+        <!-- 1. CATEGORY SELECTION VIEW (Folder List) -->
+        <!-- ============================================== -->
+        <div id="category-grid-page">
+            <h2 class="text-3xl font-semibold text-center mb-10 text-gray-800 border-b-2 border-red-700 inline-block pb-1 mx-auto">Select a Folder</h2>
+            
+            <div id="categoryGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Folder thumbnails injected here by JavaScript -->
+            </div>
+        </div>
 
-        <div id="gallery" class="gallery-grid">
-            <!-- Photo cards will be injected here by JavaScript -->
+        <!-- ============================================== -->
+        <!-- 2. PHOTO GALLERY VIEW (Images in Folder) -->
+        <!-- ============================================== -->
+        <div id="photo-gallery-page" class="hidden">
+            <button onclick="showPage('category-grid-page')" 
+                    class="mb-6 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition">
+                <i data-lucide="arrow-left" class="w-4 h-4 inline-block mr-2 align-middle"></i>
+                Back to Folders
+            </button>
+
+            <h2 id="galleryTitle" class="text-3xl font-semibold mb-6 text-gray-800 border-b-2 border-red-700 inline-block pb-1"></h2>
+
+            <div id="gallery" class="gallery-grid">
+                <!-- Photo cards for the selected folder will be injected here -->
+            </div>
         </div>
     </main>
-
-    <!-- Contact Section -->
+    
+    <!-- Contact Section (Kept for completeness) -->
     <section id="contact" class="bg-gray-800 text-white py-16 mt-12">
         <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 class="text-4xl font-bold mb-4 text-red-500">Let's Connect</h2>
-            <p class="text-lg mb-8 text-gray-300">Interested in sharing thoughts or commissioning a shoot? Send me a message!</p>
-            
+            <h2 class="text-4xl font-bold mb-4 text-red-500">Contact</h2>
             <form id="contactForm" class="space-y-4">
                 <input type="text" placeholder="Your Name" required class="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:ring-red-500 focus:border-red-500">
                 <input type="email" placeholder="Your Email" required class="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:ring-red-500 focus:border-red-500">
@@ -125,129 +170,213 @@
                     <i data-lucide="send" class="w-4 h-4 inline-block ml-2 align-middle"></i>
                 </button>
             </form>
-            <div id="messageBox" class="mt-4 p-3 rounded-lg bg-green-500 text-white hidden">Thank you for your message! I'll be in touch soon.</div>
+            <div id="messageBox" class="mt-4 p-3 rounded-lg bg-green-500 text-white hidden">Thank you for your message!</div>
         </div>
     </section>
 
     <!-- Footer -->
     <footer class="bg-gray-900 py-6">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-400">
-            <p>&copy; 2025 Desert Vistas Photography. All Rights Reserved. | Images are Watermarked and Protected.</p>
+            <p>&copy; 2025 Image Gallery. All Rights Reserved.</p>
         </div>
     </footer>
 
-    <!-- Image Modal (Wider and Taller for better "Full Picture" View) -->
+    <!-- Image Modal (Simplified - No Sidebar) -->
     <div id="imageModal" class="fixed inset-0 hidden modal-overlay items-center justify-center p-2 md:p-4" onclick="closeModal(event)">
-        
-        <!-- Modal Content Container (Increased to max-w-6xl) -->
-        <div class="bg-white rounded-xl shadow-2xl max-w-6xl w-full max-h-[95vh] overflow-hidden" onclick="event.stopPropagation()">
-            <div class="flex flex-col md:flex-row h-full">
+        <div id="modalContentContainer" class="bg-gray-900 rounded-xl shadow-2xl max-w-full max-h-[95vh] w-[95vw] h-[95vh] overflow-hidden" onclick="event.stopPropagation()">
+            
+            <div id="modalImageArea" class="w-full h-full flex items-center justify-center relative">
+                <div class="watermark-overlay">FOLDER GALLERY</div>
                 
-                <!-- Image Display Area -->
-                <div class="md:w-3/4 p-2 md:p-4 flex items-center justify-center bg-gray-800 overflow-hidden relative">
-                    <!-- Watermark added directly over the image container -->
-                    <div class="watermark-overlay text-4xl text-gray-200">Desert Vistas ©</div>
+                <div id="zoomableContainer" 
+                     onmousedown="startPan(event)" 
+                     onmousemove="panImage(event)" 
+                     onmouseup="stopPan()" 
+                     onmouseleave="stopPan()"
+                     ontouchstart="startPan(event)"
+                     ontouchmove="panImage(event)"
+                     ontouchend="stopPan()">
                     <img id="modalImage" 
                          src="" 
                          alt="Selected Photo" 
-                         class="max-h-full max-w-full object-contain protected-image"
+                         class="protected-image"
                          oncontextmenu="return false;"
                          ondragstart="return false;">
-                    
-                    <button onclick="closeModal()" class="absolute top-2 right-2 p-2 rounded-full bg-black/50 text-white hover:bg-red-700 transition z-20">
-                        <i data-lucide="x" class="w-6 h-6"></i>
-                    </button>
                 </div>
                 
-                <!-- Details and Description Sidebar -->
-                <div class="md:w-1/4 p-6 space-y-4 overflow-y-auto">
-                    <h3 id="modalTitle" class="text-2xl font-bold text-gray-800 border-b pb-2 border-gray-200"></h3>
-                    <div class="space-y-2">
-                        <p class="text-base font-semibold text-gray-700">Description:</p>
-                        <p id="modalDescription" class="text-gray-600 text-sm"></p>
-                    </div>
-                    
-                    <div class="space-y-2 pt-2 border-t border-gray-200">
-                        <p class="text-base font-semibold text-gray-700">Details:</p>
-                        <p class="text-gray-500"><span class="font-medium text-gray-700">Location:</span> <span id="modalLocation"></span></p>
-                        <p class="text-gray-500"><span class="font-medium text-gray-700">Dimensions:</span> <span id="modalDimensions"></span></p>
-                    </div>
+                <!-- Close Button -->
+                <button onclick="closeModal()" class="absolute top-2 right-2 p-2 rounded-full bg-black/50 text-white hover:bg-red-700 transition z-20">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+
+                <!-- Navigation Buttons (Prev/Next) -->
+                <button id="prevPhotoBtn" onclick="navigatePhoto(-1)" 
+                        class="absolute left-4 top-1/2 transform -translate-y-1/2 p-3 rounded-full bg-black/50 text-white hover:bg-black transition z-20 disabled:opacity-30">
+                    <i data-lucide="chevron-left" class="w-8 h-8"></i>
+                </button>
+                <button id="nextPhotoBtn" onclick="navigatePhoto(1)" 
+                        class="absolute right-4 top-1/2 transform -translate-y-1/2 p-3 rounded-full bg-black/50 text-white hover:bg-black transition z-20 disabled:opacity-30">
+                    <i data-lucide="chevron-right" class="w-8 h-8"></i>
+                </button>
+
+                <!-- Zoom Controls -->
+                <div class="absolute bottom-4 right-4 flex space-x-2 z-20">
+                    <button id="zoomInBtn" onclick="zoom(true)" class="p-2 rounded-full bg-black/70 text-white hover:bg-black transition disabled:opacity-50" title="Zoom In">
+                        <i data-lucide="zoom-in" class="w-6 h-6"></i>
+                    </button>
+                    <button id="zoomOutBtn" onclick="zoom(false)" class="p-2 rounded-full bg-black/70 text-white hover:bg-black transition disabled:opacity-50" title="Zoom Out">
+                        <i data-lucide="zoom-out" class="w-6 h-6"></i>
+                    </button>
                 </div>
             </div>
+            
         </div>
     </div>
 
 
     <script>
-        // Data structure for the uploaded images and their metadata
-        const photos = [
-            // --- Curated List (22 Images) ---
-            { id: 1, title: "Grand Arch", location: "Arches National Park, UT", description: "A major arch formation rising dramatically from the desert floor.", filepath: "arches_arch.jpeg", ratio: "3/2", dimensions: "4500x3000 px" },
-            { id: 2, title: "Canyonlands Perspective 2", location: "Canyonlands NP, UT", description: "A secondary perspective of the Canyonlands landscape.", filepath: "canyon lands 2.jpeg", ratio: "3/2", dimensions: "5000x3333 px" },
-            { id: 3, title: "Deep Canyonlands", location: "Canyonlands NP, UT", description: "Focus on a deep, shadowed section of the canyon.", filepath: "canyon lands canyon.jpeg", ratio: "4/5", dimensions: "3200x4000 px" },
-            { id: 4, title: "Canyonlands Overview", location: "Canyonlands National Park, UT", description: "A sweeping view of the multi-layered canyons.", filepath: "CanyonLands.jpeg", ratio: "3/2", dimensions: "5000x3333 px" },
-            { id: 5, title: "Delicate Arch", location: "Arches National Park, UT", description: "The iconic arch at sunset, captured from a distance.", filepath: "Delicate_Arch.jpeg", ratio: "3/2", dimensions: "4000x2667 px" },
-            { id: 6, title: "Double Arch Interior", location: "Arches National Park, UT", description: "Looking up through the massive openings of Double Arch.", filepath: "Double_Arch_2.jpeg", ratio: "4/5", dimensions: "3200x4000 px" },
-            { id: 7, title: "Double Arch Base", location: "Arches National Park, UT", description: "The twin arches towering over the hikers below.", filepath: "DoubleArch.jpeg", ratio: "3/2", dimensions: "4500x3000 px" },
-            { id: 8, title: "Flagstaff Mountain Panorama", location: "Flagstaff, AZ", description: "A wide-angle landscape showing the mountains around Flagstaff.", filepath: "Flagstaff_panorama.jpeg", ratio: "16/9", dimensions: "6000x3375 px" },
-            { id: 9, title: "Flagstaff Snowbowl", location: "San Francisco Peaks, AZ", description: "Snowy landscape near the ski resort.", filepath: "flagstaff_snowbowl.jpeg", ratio: "4/3", dimensions: "4800x3600 px" },
-            { id: 10, title: "Grand Canyon Vista", location: "Grand Canyon National Park, AZ", description: "A vast, sweeping view into the depths of the iconic Grand Canyon.", filepath: "GrandCanyon.jpeg", ratio: "16/9", dimensions: "6000x3375 px" },
-            // CORRECTION: Changing filepath from 'HoverDam.jpeg' (misspelling) to 'HooverDam.jpeg'
-            { id: 11, title: "Hoover Dam Structure", location: "Hoover Dam, NV/AZ", description: "A detailed view of the massive concrete structure and architecture.", filepath: "HooverDam.jpeg", ratio: "3/2", dimensions: "5000x3333 px" },
-            { id: 12, title: "Kanya Kumari Temple", location: "Kanya Kumari, India", description: "The colorful ancient temple complex at the southern tip of India.", filepath: "Kanya_Kumari.jpeg", ratio: "3/2", dimensions: "5000x3333 px" },
-            // CORRECTION: Changing filepath from 'Lake_Pleasent_2.jpeg' (misspelling) to 'Lake_Pleasant_2.jpeg'
-            { id: 13, title: "Lake Pleasant Sunset", location: "Lake Pleasant, AZ", description: "Wide-angle view of the lake under a dramatic sunset.", filepath: "Lake_Pleasant_2.jpeg", ratio: "16/9", dimensions: "6000x3375 px" },
-            { id: 14, title: "LA Boat Hangar", location: "Los Angeles, CA", description: "Architectural shot of a vast boat hangar in Southern California.", filepath: "Los_Angeles_Boat_Hanger.jpeg", ratio: "4/5", dimensions: "3200x4000 px" },
-            { id: 15, title: "Monument Valley Buttes", location: "Monument Valley, UT/AZ", description: "The iconic sandstone buttes rising from the desert plain.", filepath: "Monument_Valley.jpeg", ratio: "3/2", dimensions: "4500x3000 px" },
-            { id: 16, title: "Nandi Hills", location: "Nandi Hills, India", description: "Scenic view from the hill station, often shrouded in mist.", filepath: "Nandi_Hills.jpg", ratio: "4/3", dimensions: "4000x3000 px" },
-            { id: 17, title: "Oak Creek Canyon", location: "Sedona, AZ", description: "Lush vegetation and flowing water contrasted against the red rocks.", filepath: "Oak_Creek.jpeg", ratio: "4/3", dimensions: "4800x3600 px" },
-            { id: 18, title: "Reservoir View", location: "Nevada/Arizona", description: "Water level changes visible on the steep sides of the reservoir.", filepath: "reservoir.jpg", ratio: "16/9", dimensions: "5500x3094 px" },
-            { id: 19, title: "Road to Arches", location: "Arches National Park, UT", description: "A classic leading line shot of the road winding through the park entrance.", filepath: "road_arches.jpeg", ratio: "3/2", dimensions: "5000x3333 px" },
-            { id: 20, title: "San Diego Coast", location: "San Diego, CA", description: "A wide coastal view of the Pacific Ocean and city skyline.", filepath: "Sandiego.jpeg", ratio: "16/9", dimensions: "6000x3375 px" },
-            { id: 21, title: "Sedona Red Rocks", location: "Sedona, AZ", description: "Vibrant red rock formations under a clear blue sky.", filepath: "Sedona.jpeg", ratio: "4/3", dimensions: "4000x3000 px" },
-            { id: 22, title: "Upheaval Dome", location: "Canyonlands National Park, UT", description: "The geological anomaly known as Upheaval Dome.", filepath: "UpheavelDome.jpeg", ratio: "3/2", dimensions: "5000x3333 px" }
-        ];
+        // --- PHOTO DATA (Dynamic Loading) ---
+        // Will be populated after fetching data.json
+        let photos = [];
+        
+        // --- Global State for Navigation and Zoom/Pan ---
+        let currentPhotoList = []; 
+        let currentPhotoIndex = -1; 
+        let scale = 1;
+        let translateX = 0;
+        let translateY = 0;
+        let isDragging = false;
+        let startX = 0;
+        let startY = 0;
+        const maxScale = 4;
+        const minScale = 1;
 
-        // Function to render the gallery items
-        function renderGallery() {
+        // Elements
+        let modalImage;
+        let zoomableContainer;
+
+        // --- Core Utility: Get the final image source URL ---
+        // Ensures the final path is: images/FolderName/ImageFile.jpeg
+        const getImageUrl = (rawPath) => `images/${rawPath}`;
+        
+        // --- Page Navigation Logic ---
+
+        /**
+         * Scans the 'photos' array and dynamically builds a list of unique categories
+         * based on the folder name in the 'filepath'.
+         */
+        function getCategories() {
+            const categoriesMap = {};
+            
+            photos.forEach(photo => {
+                const folderName = photo.location; 
+                
+                if (!categoriesMap[folderName]) {
+                    categoriesMap[folderName] = { 
+                        folderName: folderName, 
+                        name: folderName,       
+                        coverImage: photo.filepath 
+                    };
+                }
+            });
+            
+            // Filter out any photos that don't have a recognizable folder structure (e.g., just "road_arches.jpeg")
+            const validCategories = Object.values(categoriesMap).filter(cat => cat.folderName.length > 0);
+            
+            let finalCategories = validCategories.sort((a, b) => a.name.localeCompare(b.name));
+            
+            return finalCategories;
+        }
+
+        function renderCategoryGrid() {
+            const categories = getCategories();
+            const categoryGridElement = document.getElementById('categoryGrid');
+            let html = '';
+
+            if (categories.length === 0) {
+                categoryGridElement.innerHTML = `<p class="text-center text-xl text-gray-500">No folders found in file paths. Check if data.json is properly structured.</p>`;
+                return;
+            }
+
+            categories.forEach(category => {
+                const safeName = category.folderName.replace(/'/g, "\\'"); 
+                const imageSource = getImageUrl(category.coverImage); 
+
+                html += `
+                    <div class="cursor-pointer group relative overflow-hidden rounded-xl shadow-xl" 
+                         onclick="openCategory('${safeName}')">
+                        
+                        <!-- Background Image -->
+                        <img src="${imageSource}" 
+                             alt="${category.name} Collection" 
+                             class="w-full h-80 object-cover transition duration-500 group-hover:scale-105"
+                             onerror="this.onerror=null; this.src='https://placehold.co/600x320/3c3b37/ffffff?text=${category.name.replace(/\s/g, '+')}';"
+                             loading="lazy">
+                        
+                        <!-- Overlay & Text (Folder Name) -->
+                        <div class="absolute inset-0 bg-black/50 group-hover:bg-black/40 transition duration-300 flex items-center justify-center">
+                            <h3 class="text-3xl font-bold text-white tracking-wide p-4 border-b-2 border-red-500">${category.name}</h3>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            categoryGridElement.innerHTML = html;
+        }
+        
+        function showPage(pageId) {
+            document.getElementById('category-grid-page').classList.add('hidden');
+            document.getElementById('photo-gallery-page').classList.add('hidden');
+
+            document.getElementById(pageId).classList.remove('hidden');
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            // Re-create icons for the newly visible page
+            lucide.createIcons(); 
+        }
+
+        function openCategory(folderName) {
+            
+            const filteredPhotos = photos.filter(photo => {
+                // Filter based on the raw folder name (e.g., 'Arches')
+                return photo.location === folderName;
+            });
+
+            // Sort filtered photos by filename for predictable order
+            currentPhotoList = filteredPhotos.sort((a, b) => a.title.localeCompare(b.title));
+            
+            document.getElementById('galleryTitle').textContent = `${folderName} (${filteredPhotos.length} images)`;
+
+            renderGallery(currentPhotoList);
+            showPage('photo-gallery-page');
+        }
+
+
+        // Function to render the gallery items (Minimalist)
+        function renderGallery(photoList) {
             const galleryElement = document.getElementById('gallery');
             let html = '';
 
-            photos.forEach(photo => {
-                // IMPORTANT: Since some filenames have spaces, we must ensure the path is correctly constructed.
-                // The browser will handle the space, but it's important to use the exact name.
-                const imageUrl = `images/${photo.filepath}`;
+            photoList.forEach((photo, index) => { 
+                const imageUrl = getImageUrl(photo.filepath); 
                 
-                // Determine CSS class based on ratio for placeholder image sizing
-                let imageClass = "w-full object-cover rounded-t-xl protected-image";
-                if (photo.ratio === "16/5") { // If we ever bring back the pano wide feature
-                    imageClass += " h-auto"; 
-                }
-
-                // Construct the HTML for each photo card
                 html += `
-                    <div class="photo-card" onclick="openModal(${photo.id})">
+                    <div class="photo-card" onclick="openModal(${index})">
                         <div class="bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer relative">
-                            <!-- Watermark on the gallery tile -->
-                            <div class="watermark-overlay text-gray-800 text-base opacity-20">Desert Vistas ©</div>
-
-                            <!-- Image using the actual uploaded file path -->
+                            
+                            <!-- Image -->
                             <img src="${imageUrl}" 
                                  alt="${photo.title}" 
-                                 class="${imageClass}"
-                                 onerror="this.onerror=null; this.src='https://placehold.co/600x400/3c3b37/ffffff?text=Image+Not+Found';"
+                                 class="w-full object-cover rounded-t-xl protected-image"
+                                 onerror="this.onerror=null; this.src='https://placehold.co/600x400/3c3b37/ffffff?text=Image+Missing';"
                                  loading="lazy"
-                                 style="aspect-ratio: ${photo.ratio || '4/3'};"
+                                 style="aspect-ratio: 4/3;"
                                  oncontextmenu="return false;"
                                  ondragstart="return false;"> 
                             
-                            <!-- Card Footer -->
-                            <div class="p-4">
-                                <h3 class="text-lg font-semibold text-gray-800 truncate">${photo.title}</h3>
-                                <p class="text-sm text-gray-500 flex items-center mt-1">
-                                    <i data-lucide="map-pin" class="w-4 h-4 mr-1"></i> 
-                                    ${photo.location}
-                                </p>
+                            <!-- Caption (Image File Name Only) -->
+                            <div class="p-3 text-center">
+                                <p class="text-sm font-medium text-gray-700 truncate">${photo.title}</p>
                             </div>
                         </div>
                     </div>
@@ -255,64 +384,279 @@
             });
 
             galleryElement.innerHTML = html;
-            // Re-render lucide icons after injecting new HTML
+            // Re-create icons if the gallery contained any (though none are used here)
             lucide.createIcons(); 
         }
 
-        // Modal functions
-        function openModal(photoId) {
-            const photo = photos.find(p => p.id === photoId);
-            if (!photo) return;
+        // --- CORE MODAL LOGIC (Simplified) ---
 
-            // Populate Modal Content
-            document.getElementById('modalImage').src = `images/${photo.filepath}`; // Use actual image path for modal
-            document.getElementById('modalTitle').textContent = photo.title;
-            document.getElementById('modalDescription').textContent = photo.description;
-            document.getElementById('modalLocation').textContent = photo.location;
-            document.getElementById('modalDimensions').textContent = photo.dimensions || "N/A";
+        function updateModalContent(photo) {
+            // 1. Reset Zoom/Pan state
+            scale = minScale;
+            translateX = 0;
+            translateY = 0;
+            modalImage.style.transform = ''; 
 
-            // Display Modal
+            // 2. Populate Modal Details
+            document.getElementById('modalImage').src = getImageUrl(photo.filepath); 
+
+            // 3. Update Navigation/Zoom controls
+            updateTransform(); 
+            updateNavigationButtons();
+        }
+
+        function openModal(index) {
+            if (currentPhotoList.length === 0) return; 
+
+            modalImage = document.getElementById('modalImage');
+            zoomableContainer = document.getElementById('zoomableContainer');
+            currentPhotoIndex = index;
+            const photo = currentPhotoList[currentPhotoIndex];
+            
+            updateModalContent(photo);
+
             const modal = document.getElementById('imageModal');
             modal.classList.remove('hidden');
             modal.classList.add('flex');
-            document.body.style.overflow = 'hidden'; // Prevent scrolling background
-            lucide.createIcons(); // Ensure icons in modal are rendered
+            document.body.style.overflow = 'hidden'; 
+            // Re-create icons for the modal elements
+            lucide.createIcons(); 
         }
 
         function closeModal(event) {
-            // Close only if clicking the background overlay or the close button
             if (!event || event.target === document.getElementById('imageModal')) {
                 const modal = document.getElementById('imageModal');
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
-                document.body.style.overflow = ''; // Restore scrolling
+                document.body.style.overflow = ''; 
+                currentPhotoIndex = -1; // Reset index
+            }
+        }
+
+        // --- NAVIGATION LOGIC ---
+
+        function updateNavigationButtons() {
+            const prevBtn = document.getElementById('prevPhotoBtn');
+            const nextBtn = document.getElementById('nextPhotoBtn');
+
+            const isFirst = currentPhotoIndex <= 0;
+            const isLast = currentPhotoIndex >= currentPhotoList.length - 1;
+
+            prevBtn.disabled = isFirst;
+            nextBtn.disabled = isLast;
+
+            prevBtn.classList.toggle('opacity-30', isFirst);
+            nextBtn.classList.toggle('opacity-30', isLast);
+        }
+
+        function navigatePhoto(direction) {
+            let newIndex = currentPhotoIndex + direction;
+            
+            if (newIndex >= 0 && newIndex < currentPhotoList.length) {
+                currentPhotoIndex = newIndex;
+                const newPhoto = currentPhotoList[currentPhotoIndex];
+                updateModalContent(newPhoto);
+            }
+        }
+        
+        // --- ZOOM/PAN CONTROL FUNCTIONS ---
+        function updateTransform() {
+            modalImage.style.transform = `scale(${scale}) translate(${translateX}px, ${translateY}px)`;
+            document.getElementById('zoomInBtn').disabled = scale >= maxScale;
+            document.getElementById('zoomOutBtn').disabled = scale <= minScale;
+            if (scale > minScale) {
+                zoomableContainer.classList.add('panning');
+                zoomableContainer.style.cursor = 'grab';
+            } else {
+                zoomableContainer.classList.remove('panning');
+                zoomableContainer.style.cursor = 'zoom-in';
+            }
+        }
+        function centerImage() {
+            translateX = 0;
+            translateY = 0;
+        }
+        function zoom(zoomIn) {
+            const newScale = zoomIn ? Math.min(maxScale, scale + 0.5) : Math.max(minScale, scale - 0.5);
+            if (newScale !== scale) {
+                scale = newScale;
+                if (scale === minScale) {
+                    centerImage();
+                }
+                updateTransform();
+            }
+        }
+        function startPan(e) {
+            // Check if it's a primary mouse button or a touch event
+            if (scale > minScale && (e.button === 0 || e.touches)) {
+                e.preventDefault();
+                isDragging = true;
+                const clientX = e.clientX || e.touches[0].clientX;
+                const clientY = e.clientY || e.touches[0].clientY;
+                startX = clientX - translateX * scale; 
+                startY = clientY - translateY * scale; 
+                zoomableContainer.style.cursor = 'grabbing';
+            }
+        }
+        function panImage(e) {
+            if (!isDragging || scale <= minScale) return;
+            e.preventDefault();
+
+            const clientX = e.clientX || e.touches[0].clientX;
+            const clientY = e.clientY || e.touches[0].clientY;
+            
+            let newX = (clientX - startX) / scale;
+            let newY = (clientY - startY) / scale;
+            
+            const container = zoomableContainer.getBoundingClientRect();
+            // Using natural size of the image element * without* scale applied for correct boundary calculation
+            const imgWidthNatural = modalImage.offsetWidth; 
+            const imgHeightNatural = modalImage.offsetHeight;
+            
+            // Calculate boundaries based on current scaled size vs container size
+            
+            // X-axis limits
+            if (imgWidthNatural * scale > container.width) {
+                // Max allowed translation (half the visible gap)
+                const maxPanX = (imgWidthNatural * scale - container.width) / (2 * scale); 
+                newX = Math.min(Math.max(newX, -maxPanX), maxPanX);
+            } else {
+                newX = 0;
+            }
+
+            // Y-axis limits
+            if (imgHeightNatural * scale > container.height) {
+                const maxPanY = (imgHeightNatural * scale - container.height) / (2 * scale);
+                newY = Math.min(Math.max(newY, -maxPanY), maxPanY);
+            } else {
+                newY = 0;
+            }
+
+            translateX = newX;
+            translateY = newY;
+            updateTransform();
+        }
+        function stopPan() {
+            isDragging = false;
+            if (scale > minScale) {
+                zoomableContainer.style.cursor = 'grab';
+            }
+        }
+        function handleScrollZoom(e) {
+            if (document.getElementById('imageModal').classList.contains('flex')) {
+                e.preventDefault();
+                // Normalize deltaY: positive is zoom out, negative is zoom in
+                const zoomIn = e.deltaY < 0; 
+                zoom(zoomIn);
             }
         }
         
         // Contact Form Submission (for demo purposes)
         document.getElementById('contactForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            
             const messageBox = document.getElementById('messageBox');
-            
-            // Simulate form submission and success message
             messageBox.classList.remove('hidden');
-            messageBox.textContent = "Thank you for your message! I'll be in touch soon.";
-            
+            messageBox.textContent = "Thank you for your message!";
             setTimeout(() => {
                 messageBox.classList.add('hidden');
                 this.reset();
             }, 3000);
         });
 
+        /**
+         * Loads image data from the data.json file.
+         */
+        async function loadPhotoData() {
+            // Default list used if fetch fails, ensures a functional demo
+            const fallbackFileNames = [
+                "Arches/IMG_7140.jpeg",
+                "Canyonlands/IMG_7071.jpeg",
+                "Arches/IMG_7092.jpeg"
+            ];
+            let actualFileNames = fallbackFileNames;
 
-        // Initialize the gallery on page load
-        window.onload = renderGallery;
+            try {
+                // Fetch the JSON file from the root directory
+                const response = await fetch('data.json');
+                if (!response.ok) {
+                    console.warn(`Could not fetch data.json (Status: ${response.status}). Using fallback demo data.`);
+                } else {
+                    actualFileNames = await response.json();
+                }
+
+            } catch (error) {
+                console.error("Failed to load data.json due to network/parsing error. Using fallback demo data.", error);
+            }
+            
+            // Process the raw file names into the 'photos' structure
+            photos = actualFileNames.map((fullPath, index) => {
+                // Example path: "Arches/IMG_7140.jpeg"
+                const parts = fullPath.split('/');
+                const folderName = parts[0]; 
+                const fileNameOnly = parts.length > 1 ? parts[1] : folderName; 
+                
+                // Only process paths that have a folder name (i.e., contain '/')
+                if (parts.length > 1) {
+                    return {
+                        id: index + 1,
+                        // Title is just the filename for simplicity
+                        title: fileNameOnly, 
+                        // Location is the folder name, used for category filtering
+                        location: folderName, 
+                        filepath: fullPath, 
+                        ratio: index % 3 === 0 ? "4/5" : "3/2", 
+                    };
+                }
+                return null;
+            }).filter(photo => photo !== null); // Remove any null entries
+            
+            // Render the UI only after data is ready
+            renderCategoryGrid();
+            
+            // NEW: Set the Hero Banner Image dynamically from the processed data
+            setHeroBanner();
+        }
+
+        /**
+         * Sets the hero banner image using a specific filename from the photo data.
+         */
+        function setHeroBanner() {
+            const heroImageElement = document.getElementById('heroImage');
+            if (!heroImageElement || photos.length === 0) return;
+            
+            // 1. Try to find the specific road banner image by its file name
+            const bannerPhoto = photos.find(p => p.title === 'road_arches.jpeg');
+            
+            if (bannerPhoto) {
+                heroImageElement.src = getImageUrl(bannerPhoto.filepath);
+                heroImageElement.alt = "Hero Banner: Road to Arches National Park";
+            } else {
+                // 2. Fallback: Use the cover image of the first category if the specific image isn't found
+                const categories = getCategories();
+                if (categories.length > 0) {
+                    heroImageElement.src = getImageUrl(categories[0].coverImage); 
+                    heroImageElement.alt = `Hero Banner: ${categories[0].name} Collection`;
+                }
+            }
+        }
+
+
+        // Initialize the category grid on page load
+        window.onload = () => {
+            loadPhotoData(); // Start loading data
+            document.addEventListener('wheel', handleScrollZoom, { passive: false });
+        };
 
         // Add a keyboard listener for closing the modal with the Escape key
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && document.getElementById('imageModal').classList.contains('flex')) {
-                closeModal();
+            if (document.getElementById('imageModal').classList.contains('flex')) {
+                if (e.key === 'Escape') {
+                    closeModal();
+                } else if (e.key === 'ArrowRight') {
+                    navigatePhoto(1);
+                } else if (e.key === 'ArrowLeft') {
+                    navigatePhoto(-1);
+                }
             }
         });
 
