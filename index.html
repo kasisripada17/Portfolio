@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>epic travel cuts</title>
+    <title>explore the world</title>
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Load Lucide Icons for aesthetic elements -->
@@ -100,6 +100,21 @@
         .object-center-down {
             object-position: 50% 40%; 
         }
+
+        /* Simple CSS for the loading spinner */
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #f87171; /* red-400 */
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -129,7 +144,9 @@
              onerror="this.onerror=null; this.src='https://placehold.co/1200x400/581c1c/ffffff?text=Image+Collections';"
              loading="lazy">
         <div class="relative z-10 text-center p-4 bg-black/30 rounded-xl">
-            <h2 class="text-5xl md:text-6xl font-bold text-white mb-2">Image Collections</h2>
+            <!-- UPDATED: New heading text -->
+            <h2 class="text-5xl md:text-6xl font-bold text-white mb-2">Explore Our World</h2>
+            <p class="text-xl text-gray-200 font-medium hidden sm:block">A curated selection of the finest shots from our journeys.</p>
         </div>
     </section>
 
@@ -144,6 +161,9 @@
             
             <div id="categoryGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <!-- Folder thumbnails injected here by JavaScript -->
+                <div id="loadingSpinner" class="col-span-full flex justify-center items-center py-10">
+                    <div class="spinner"></div>
+                </div>
             </div>
         </div>
 
@@ -250,7 +270,6 @@
 
     <script>
         // --- PHOTO DATA (Dynamic Loading) ---
-        // Will be populated after fetching data.json
         let photos = [];
         
         // --- Global State for Navigation and Zoom/Pan ---
@@ -268,17 +287,15 @@
         // Elements
         let modalImage;
         let zoomableContainer;
-        let watermark; // New global reference for the watermark element
+        let watermark; 
 
         // --- Core Utility: Get the final image source URL ---
-        // Ensures the final path is: images/FolderName/ImageFile.jpeg
         const getImageUrl = (rawPath) => `images/${rawPath}`;
         
         // --- Page Navigation Logic ---
 
         /**
          * Scans the 'photos' array and dynamically builds a list of unique categories
-         * based on the folder name in the 'filepath'.
          */
         function getCategories() {
             const categoriesMap = {};
@@ -290,12 +307,12 @@
                     categoriesMap[folderName] = { 
                         folderName: folderName, 
                         name: folderName,       
-                        coverImage: photo.filepath 
+                        // Use thumbnail for the category cover
+                        coverImage: photo.thumbnailPath || photo.fullPath 
                     };
                 }
             });
             
-            // Filter out any photos that don't have a recognizable folder structure (e.g., just "road_arches.jpeg")
             const validCategories = Object.values(categoriesMap).filter(cat => cat.folderName.length > 0);
             
             let finalCategories = validCategories.sort((a, b) => a.name.localeCompare(b.name));
@@ -306,10 +323,13 @@
         function renderCategoryGrid() {
             const categories = getCategories();
             const categoryGridElement = document.getElementById('categoryGrid');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            
+            loadingSpinner.classList.add('hidden');
             let html = '';
 
             if (categories.length === 0) {
-                categoryGridElement.innerHTML = `<p class="text-center text-xl text-gray-500">No folders found in file paths. Check if data.json is properly structured.</p>`;
+                categoryGridElement.innerHTML = `<p class="col-span-full text-center text-xl text-gray-500">No folders found. Check your data structure.</p>`;
                 return;
             }
 
@@ -321,7 +341,7 @@
                     <div class="cursor-pointer group relative overflow-hidden rounded-xl shadow-xl" 
                          onclick="openCategory('${safeName}')">
                         
-                        <!-- Background Image -->
+                        <!-- Background Image (uses thumbnail path) -->
                         <img src="${imageSource}" 
                              alt="${category.name} Collection" 
                              class="w-full h-80 object-cover transition duration-500 group-hover:scale-105"
@@ -346,18 +366,15 @@
             document.getElementById(pageId).classList.remove('hidden');
             
             window.scrollTo({ top: 0, behavior: 'smooth' });
-            // Re-create icons for the newly visible page
             lucide.createIcons(); 
         }
 
         function openCategory(folderName) {
             
             const filteredPhotos = photos.filter(photo => {
-                // Filter based on the raw folder name (e.g., 'Arches')
                 return photo.location === folderName;
             });
 
-            // Sort filtered photos by filename for predictable order
             currentPhotoList = filteredPhotos.sort((a, b) => a.title.localeCompare(b.title));
             
             document.getElementById('galleryTitle').textContent = `${folderName} (${filteredPhotos.length} images)`;
@@ -367,19 +384,20 @@
         }
 
 
-        // Function to render the gallery items (Minimalist)
+        // Function to render the gallery items (Uses Thumbnail path for speed)
         function renderGallery(photoList) {
             const galleryElement = document.getElementById('gallery');
             let html = '';
 
             photoList.forEach((photo, index) => { 
-                const imageUrl = getImageUrl(photo.filepath); 
+                // CRUCIAL: Use thumbnailPath here
+                const imageUrl = getImageUrl(photo.thumbnailPath || photo.fullPath); 
                 
                 html += `
                     <div class="photo-card" onclick="openModal(${index})">
                         <div class="bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer relative">
                             
-                            <!-- Image -->
+                            <!-- Image (uses thumbnail) -->
                             <img src="${imageUrl}" 
                                  alt="${photo.title}" 
                                  class="w-full object-cover rounded-t-xl protected-image"
@@ -399,7 +417,6 @@
             });
 
             galleryElement.innerHTML = html;
-            // Re-create icons if the gallery contained any (though none are used here)
             lucide.createIcons(); 
         }
 
@@ -415,8 +432,8 @@
             watermark.classList.remove('watermark-visible');
 
 
-            // 2. Populate Modal Details
-            modalImage.src = getImageUrl(photo.filepath); 
+            // 2. Populate Modal Details (CRUCIAL: Use the fullPath here)
+            modalImage.src = getImageUrl(photo.fullPath); 
             
             // 3. Set up onload to position and display watermark
             modalImage.onload = () => {
@@ -435,7 +452,7 @@
 
             modalImage = document.getElementById('modalImage');
             zoomableContainer = document.getElementById('zoomableContainer');
-            watermark = document.getElementById('watermark'); // Get watermark element
+            watermark = document.getElementById('watermark'); 
             
             currentPhotoIndex = index;
             const photo = currentPhotoList[currentPhotoIndex];
@@ -446,7 +463,6 @@
             modal.classList.remove('hidden');
             modal.classList.add('flex');
             document.body.style.overflow = 'hidden'; 
-            // Re-create icons for the modal elements
             lucide.createIcons(); 
         }
 
@@ -493,7 +509,7 @@
             
             // --- Watermark Logic ---
             if (modalImage.offsetHeight > 0 && watermark) {
-                // Get the size of the unscaled image (limited by the modal container)
+                // Get the size of the unscaled image (imited by the modal container)
                 const imgWidth = modalImage.offsetWidth;
                 const imgHeight = modalImage.offsetHeight;
                 const wmWidth = watermark.offsetWidth;
@@ -504,17 +520,12 @@
                 const initialOffsetX = (imgWidth / 2) - (wmWidth / 2) - margin;
                 const initialOffsetY = (imgHeight / 2) - (wmHeight / 2) - margin;
                 
-                // 2. Apply Combined Transform
-                // The watermark's transform must include:
-                // a) Initial Position (move from center to corner)
-                // b) Scaling (zoom)
-                // c) Panning (translate)
-                // d) Rotation (aesthetic style)
+                // 2. Apply Combined Transform to lock watermark to the image surface
                 watermark.style.transform = 
-                    `translate(${initialOffsetX}px, ${initialOffsetY}px) ` + // 1. Initial Position (bottom right corner of image)
-                    `scale(${scale}) ` +                                      // 2. Zoom Level
-                    `translate(${translateX}px, ${translateY}px) ` +          // 3. Pan movement
-                    `rotate(-10deg)`;                                        // 4. Rotation
+                    `translate(${initialOffsetX}px, ${initialOffsetY}px) ` + 
+                    `scale(${scale}) ` +                                      
+                    `translate(${translateX}px, ${translateY}px) ` +          
+                    `rotate(-10deg)`;                                        
             }
             // --- End Watermark Logic ---
 
@@ -544,13 +555,11 @@
             }
         }
         function startPan(e) {
-            // Check if it's a primary mouse button or a touch event
             if (scale > minScale && (e.button === 0 || e.touches)) {
                 e.preventDefault();
                 isDragging = true;
                 const clientX = e.clientX || e.touches[0].clientX;
                 const clientY = e.clientY || e.touches[0].clientY;
-                // Note: StartX and StartY are calculated based on the position *before* scale is applied to the translation values
                 startX = clientX - translateX * scale; 
                 startY = clientY - translateY * scale; 
                 zoomableContainer.style.cursor = 'grabbing';
@@ -567,15 +576,11 @@
             let newY = (clientY - startY) / scale;
             
             const container = zoomableContainer.getBoundingClientRect();
-            // Using natural size of the image element * without* scale applied for correct boundary calculation
             const imgWidthNatural = modalImage.offsetWidth; 
             const imgHeightNatural = modalImage.offsetHeight;
             
-            // Calculate boundaries based on current scaled size vs container size
-            
             // X-axis limits
             if (imgWidthNatural * scale > container.width) {
-                // Max allowed translation (half the visible gap)
                 const maxPanX = (imgWidthNatural * scale - container.width) / (2 * scale); 
                 newX = Math.min(Math.max(newX, -maxPanX), maxPanX);
             } else {
@@ -603,86 +608,84 @@
         function handleScrollZoom(e) {
             if (document.getElementById('imageModal').classList.contains('flex')) {
                 e.preventDefault();
-                // Normalize deltaY: positive is zoom out, negative is zoom in
                 const zoomIn = e.deltaY < 0; 
                 zoom(zoomIn);
             }
         }
         
-        // Note: Contact form submission logic removed as it's replaced by static contact info.
-
         /**
          * Loads image data from the data.json file.
          */
         async function loadPhotoData() {
-            // Default list used if fetch fails, ensures a functional demo
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            loadingSpinner.classList.remove('hidden');
+
             const fallbackFileNames = [
-                "Arches/IMG_7140.jpeg",
-                "Canyonlands/IMG_7071.jpeg",
-                "Arches/IMG_7092.jpeg"
+                // Fallback demo data using the new naming convention
+                { full: "Arches/IMG_7140_comp.jpeg", thumbnail: "Arches/IMG_7140_thumb.jpeg" },
+                { full: "Canyonlands/IMG_7071_comp.jpeg", thumbnail: "Canyonlands/IMG_7071_thumb.jpeg" },
+                { full: "Arches/IMG_7092_comp.jpeg", thumbnail: "Arches/IMG_7092_thumb.jpeg" }
             ];
-            let actualFileNames = fallbackFileNames;
+            let rawData = fallbackFileNames;
 
             try {
-                // Fetch the JSON file from the root directory
                 const response = await fetch('data.json');
                 if (!response.ok) {
-                    console.warn(`Could not fetch data.json (Status: ${response.status}). Using fallback demo data.`);
+                    console.warn(`Could not fetch data.json. Using fallback demo data.`);
                 } else {
-                    actualFileNames = await response.json();
+                    const fetchedData = await response.json();
+                    // Handle case where data might be an array of strings (old format)
+                    rawData = fetchedData.map(item => typeof item === 'string' ? { full: item, thumbnail: item } : item);
                 }
 
             } catch (error) {
-                console.error("Failed to load data.json due to network/parsing error. Using fallback demo data.", error);
+                console.error("Failed to load data.json. Using fallback demo data.", error);
             }
             
-            // Process the raw file names into the 'photos' structure
-            photos = actualFileNames.map((fullPath, index) => {
-                // Example path: "Arches/IMG_7140.jpeg"
-                // The actual path structure in data.json is an object: { "full": "Arches/IMG_7140.jpeg", "thumbnail": "..." }
-                const filePath = typeof fullPath === 'string' ? fullPath : fullPath.full;
+            // Process the raw data into the 'photos' structure
+            photos = rawData.map((data, index) => {
+                const fullPath = data.full;
+                const thumbnailPath = data.thumbnail || data.full; // Fallback to full if thumbnail is missing
                 
-                const parts = filePath.split('/');
+                const parts = fullPath.split('/');
                 const folderName = parts[0]; 
-                const fileNameOnly = parts.length > 1 ? parts[1] : folderName; 
                 
-                // Only process paths that have a folder name (i.e., contain '/')
-                if (parts.length > 1) {
+                // Clean up the file name to remove the '_comp' suffix for display
+                let fileNameOnly = parts.length > 1 ? parts[1] : fullPath;
+                fileNameOnly = fileNameOnly.replace('_comp', '');
+                
+                if (parts.length > 0) {
                     return {
                         id: index + 1,
-                        // Title is just the filename for simplicity
                         title: fileNameOnly, 
-                        // Location is the folder name, used for category filtering
                         location: folderName, 
-                        filepath: filePath, 
-                        ratio: index % 3 === 0 ? "4/5" : "3/2", 
+                        fullPath: fullPath, // High resolution for modal
+                        thumbnailPath: thumbnailPath, // Low resolution for gallery
                     };
                 }
                 return null;
-            }).filter(photo => photo !== null); // Remove any null entries
+            }).filter(photo => photo !== null); 
             
-            // Render the UI only after data is ready
             renderCategoryGrid();
-            
-            // NEW: Set the Hero Banner Image dynamically from the processed data
             setHeroBanner();
         }
 
         /**
-         * Sets the hero banner image using a specific filename from the photo data.
+         * Sets the hero banner image dynamically.
          */
         function setHeroBanner() {
             const heroImageElement = document.getElementById('heroImage');
             if (!heroImageElement || photos.length === 0) return;
             
-            // 1. Try to find the specific road banner image by its file name
-            const bannerPhoto = photos.find(p => p.title === 'road_arches.jpeg');
+            // Try to find a photo whose title or path suggests a good banner image
+            const bannerPhoto = photos.find(p => p.title.toLowerCase().includes('road') || p.location === 'Canyonlands');
             
             if (bannerPhoto) {
-                heroImageElement.src = getImageUrl(bannerPhoto.filepath);
-                heroImageElement.alt = "Hero Banner: Road to Arches National Park";
+                // Use the fullPath for a quality banner image
+                heroImageElement.src = getImageUrl(bannerPhoto.fullPath);
+                heroImageElement.alt = "Hero Banner: " + bannerPhoto.location;
             } else {
-                // 2. Fallback: Use the cover image of the first category if the specific image isn't found
+                // Fallback: Use the cover image of the first category
                 const categories = getCategories();
                 if (categories.length > 0) {
                     heroImageElement.src = getImageUrl(categories[0].coverImage); 
@@ -694,7 +697,7 @@
 
         // Initialize the category grid on page load
         window.onload = () => {
-            loadPhotoData(); // Start loading data
+            loadPhotoData(); 
             document.addEventListener('wheel', handleScrollZoom, { passive: false });
         };
 
