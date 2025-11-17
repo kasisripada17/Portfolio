@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>explore the world</title>
+    <title>epic travel cuts</title>
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Load Lucide Icons for aesthetic elements -->
@@ -122,7 +122,7 @@
     <!-- Header & Navigation -->
     <header class="bg-white/90 sticky top-0 border-b border-gray-200 shadow-sm z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
-            <!-- UPDATED: Branding with Logo and Channel Name -->
+            <!-- Branding with Logo and Channel Name -->
             <a href="#" onclick="showPage('category-grid-page')" class="flex items-center space-x-2">
                 <img src="logo.jpg" alt="Epic Travel Cuts Logo" class="h-8 w-8 rounded-full" onerror="this.onerror=null;this.src='https://placehold.co/32x32/1a1a1a/ffffff?text=E';" />
                 <h1 class="text-2xl font-extrabold tracking-tight text-red-700">EPIC TRAVEL CUTS</h1>
@@ -134,17 +134,17 @@
         </div>
     </header>
 
-    <!-- Hero Section - Now loads dynamically from data.json -->
+    <!-- Hero Section - Now loads the specific banner.png -->
     <section class="relative h-64 bg-gray-900 flex items-end justify-center overflow-hidden mb-12 pb-8">
-        <!-- MODIFIED: Using custom class 'object-center-down' to shift the focus further down (visually) -->
+        <!-- The source will be set by the JavaScript function setHeroBanner() -->
         <img id="heroImage" 
-             src="https://placehold.co/1200x400/374151/ffffff?text=Loading+Collections..." 
+             src="https://placehold.co/1200x400/374151/ffffff?text=Loading+Banner..." 
              alt="Image Collections Banner" 
              class="absolute inset-0 w-full h-full object-cover object-center-down opacity-70"
-             onerror="this.onerror=null; this.src='https://placehold.co/1200x400/581c1c/ffffff?text=Image+Collections';"
+             onerror="this.onerror=null; this.src='https://placehold.co/1200x400/581c1c/ffffff?text=Banner+Missing';"
              loading="lazy">
         <div class="relative z-10 text-center p-4 bg-black/30 rounded-xl">
-            <!-- UPDATED: New heading text -->
+            <!-- New heading text -->
             <h2 class="text-5xl md:text-6xl font-bold text-white mb-2">Explore Our World</h2>
             <p class="text-xl text-gray-200 font-medium hidden sm:block">A curated selection of the finest shots from our journeys.</p>
         </div>
@@ -189,7 +189,7 @@
     <section id="contact" class="bg-gray-800 text-white py-16 mt-12">
         <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 class="text-4xl font-bold mb-6 text-red-500">Contact Information</h2>
-            <!-- UPDATED: Static contact information -->
+            <!-- Static contact information -->
             <div class="space-y-4 text-lg">
                 <div class="flex items-center justify-center space-x-3">
                     <i data-lucide="user" class="w-6 h-6 text-red-400"></i>
@@ -234,7 +234,7 @@
                          oncontextmenu="return false;"
                          ondragstart="return false;">
 
-                    <!-- UPDATED: Watermark moved inside the zoomable container to move with the image -->
+                    <!-- Watermark moved inside the zoomable container to move with the image -->
                     <div id="watermark" class="watermark-overlay">EPIC TRAVEL CUTS</div>
                 </div>
                 
@@ -290,6 +290,7 @@
         let watermark; 
 
         // --- Core Utility: Get the final image source URL ---
+        // Assumes gallery images are in the 'images/' folder
         const getImageUrl = (rawPath) => `images/${rawPath}`;
         
         // --- Page Navigation Logic ---
@@ -671,27 +672,18 @@
         }
 
         /**
-         * Sets the hero banner image dynamically.
+         * Sets the hero banner image dynamically to 'banner.png' in the root folder.
          */
         function setHeroBanner() {
             const heroImageElement = document.getElementById('heroImage');
-            if (!heroImageElement || photos.length === 0) return;
+            // The file path for the banner image in the root directory
+            const bannerPath = 'banner.png'; 
             
-            // Try to find a photo whose title or path suggests a good banner image
-            const bannerPhoto = photos.find(p => p.title.toLowerCase().includes('road') || p.location === 'Canyonlands');
+            if (!heroImageElement) return;
             
-            if (bannerPhoto) {
-                // Use the fullPath for a quality banner image
-                heroImageElement.src = getImageUrl(bannerPhoto.fullPath);
-                heroImageElement.alt = "Hero Banner: " + bannerPhoto.location;
-            } else {
-                // Fallback: Use the cover image of the first category
-                const categories = getCategories();
-                if (categories.length > 0) {
-                    heroImageElement.src = getImageUrl(categories[0].coverImage); 
-                    heroImageElement.alt = `Hero Banner: ${categories[0].name} Collection`;
-                }
-            }
+            // Set the source directly to the root banner file
+            heroImageElement.src = bannerPath;
+            heroImageElement.alt = "Epic Travel Cuts Hero Banner";
         }
 
 
